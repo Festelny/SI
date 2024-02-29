@@ -45,25 +45,29 @@ plt.show()
 
 # TODO: standardization
 
-z_score = ((x_train - np.mean(x_train)) / np.std(x_train))
+x_train_std = ((x_train - np.mean(x_train)) / np.std(x_train))
+y_train_std = ((y_train - np.mean(y_train)) / np.std(y_train))
+x_test_std = ((x_test - np.mean(x_test)) / np.std(x_test))
 
 # TODO: calculate theta using Batch Gradient Descent
 
-def gradient_des(learnrate,matrix_obs2,matrix,times):
+def gradient_des(learnrate,matrix_obs2,matrix):
     size=matrix_obs2.shape[0]
-    theta = np.random.randn(2,1)    
-    for i in range(0, times):
+    theta = np.random.randn(2,1)
+    test=np.full_like(theta, 2)
+    while((theta-test).all()):
+        test=theta  
         tmp = ((matrix_obs2.dot(theta)) - matrix.reshape(-1,1))
         gradient = 2 / size * (matrix_obs2.T.dot(tmp))       
         theta = theta - learnrate * gradient
     return theta
 
-matrix_obs2 = np.ones((z_score.shape[0],2))
-matrix_obs2[:,1] = z_score
+matrix_obs2 = np.ones((x_train_std.shape[0],2))
+matrix_obs2[:,1] = x_train_std
 
 learnrate=0.001
 
-theta_grad = gradient_des(learnrate,matrix_obs2,y_train,15461)
+theta_grad = gradient_des(learnrate,matrix_obs2,y_train)
 theta_unstandardized = np.zeros(2)
 theta_unstandardized[0] = theta_grad.item(0) - theta_grad.item(1) * (np.mean(x_train) / np.std(x_train))
 theta_unstandardized[1] = theta_grad.item(1) / np.std(x_train)
@@ -74,10 +78,8 @@ ms_error2 = np.mean(np.square(np.dot(matrix_obs2,theta_grad)-y_train))
 
 # plot the regression line
 x = np.linspace(min(x_test), max(x_test), 100)
-y = float(theta_best[0]) + float(theta_best[1]) * x
-y1 = float(theta_unstandardized[0]) + float(theta_unstandardized[1]) * x
-#plt.plot(x, y)
-plt.plot(x,y1)
+y = float(theta_unstandardized[0]) + float(theta_unstandardized[1]) * x
+plt.plot(x, y)
 plt.scatter(x_test, y_test)
 plt.xlabel('Weight')
 plt.ylabel('MPG')
