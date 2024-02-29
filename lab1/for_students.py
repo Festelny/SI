@@ -67,10 +67,14 @@ matrix_obs2[:,1] = x_train_std
 
 learnrate=0.001
 
-theta_grad = gradient_des(learnrate,matrix_obs2,y_train)
-theta_unstandardized = np.zeros(2)
-theta_unstandardized[0] = theta_grad.item(0) - theta_grad.item(1) * (np.mean(x_train) / np.std(x_train))
-theta_unstandardized[1] = theta_grad.item(1) / np.std(x_train)
+theta_grad = gradient_des(learnrate,matrix_obs2,y_train_std)
+theta_unstandarized = theta_grad.copy()
+theta_unstandarized[1] = theta_unstandarized[1] * np.std(y_train) / np.std(x_train)
+theta_unstandarized[0] = np.mean(y_train) - theta_unstandarized[1] * np.mean(x_train)
+theta_unstandarized = theta_unstandarized.reshape(-1)
+#theta_unstandardized = np.zeros(2)
+#theta_unstandardized[0] = theta_grad.item(0) - theta_grad.item(1) * (np.mean(x_train) / np.std(x_train))
+#theta_unstandardized[1] = theta_grad.item(1) / np.std(x_train)
 
 # TODO: calculate error
 
@@ -78,7 +82,7 @@ ms_error2 = np.mean(np.square(np.dot(matrix_obs2,theta_grad)-y_train))
 
 # plot the regression line
 x = np.linspace(min(x_test), max(x_test), 100)
-y = float(theta_unstandardized[0]) + float(theta_unstandardized[1]) * x
+y = float(theta_unstandarized[0]) + float(theta_unstandarized[1]) * x
 plt.plot(x, y)
 plt.scatter(x_test, y_test)
 plt.xlabel('Weight')
